@@ -11,6 +11,7 @@ pipline {
         }
         stage('Test')
         {
+	    agent { label 'slave1'}
             steps{
                 echo 'Running Tests'
                 sh "mvn test"
