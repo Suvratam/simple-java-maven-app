@@ -1,5 +1,8 @@
 pipeline {
     agent none
+    tools {
+    	maven 'maven-test'
+	}
     stages {
         stage('Build')
         {   
