@@ -27,7 +27,6 @@ pipeline {
         }
         stage('Test')
         {
-	    agent { label 'slave1'}
             parallel {
                 agent { label 'slave1'}
                 stage('Unit Tests') {
