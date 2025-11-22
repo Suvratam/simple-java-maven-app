@@ -36,22 +36,26 @@ pipeline {
                             junit 'target/surefire-reports/*.xml'
                         }
                     }
-                    when {
-                        beforeAgent true
-                    }
-                    steps {
-                        dir('webapp/target/') {
-                            stash includes: '*.war', name: 'maven-build'
-                        }
-                    }
                 }
                 stage('Integration Tests') {
                     agent { label 'slave1' }
-                    tools { maven 'maven-test' }
-
                     steps {
                         echo 'Running Integration Tests'
                         sh 'mvn verify -Dtest=AppTest'
+                    }
+                    post {
+                        success {
+                            dir('webapp/target/') {
+                                stash includes: 'target/*.war', name: 'maven-build'
+                            }
+                        }
+                    }
+                }
+            }
+            post {
+                success {
+                    dir('webapp/target/') {
+                        stash includes: 'target/*.war', name: 'maven-build'
                     }
                 }
             }
