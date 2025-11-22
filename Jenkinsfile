@@ -52,13 +52,6 @@ pipeline {
                     }
                 }
             }
-            post {
-                success {
-                    dir('webapp/target/') {
-                        stash includes: 'target/*.war', name: 'maven-build'
-                    }
-                }
-            }
         }
 
         stage('Deploy to Dev') {
