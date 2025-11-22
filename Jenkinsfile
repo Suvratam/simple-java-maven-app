@@ -31,15 +31,12 @@ pipeline {
                 stage('Unit Tests') {
                     agent { label 'slave1' }
                     steps {
-                        echo 'Running Unit Tests'
-                        sh 'mvn test -Dtest=AppTest'
+                        sh 'mvn test'
                     }
-                }
-                stage('Integration Tests') {
-                    agent { label 'slave1' }
-                    steps {
-                        echo 'Running Integration Tests'
-                        sh 'mvn verify -Dtest=AppIT'
+                    post {
+                        always {
+                            junit 'target/surefire-reports/*.xml'
+                        }
                     }
                 }
             }
