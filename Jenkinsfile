@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Test')
         {
-	    agent { label 'slave1'}
+	        agent { label 'slave1'}
             parallel {
                 stage('Unit Tests') {
                     steps{
