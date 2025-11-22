@@ -46,7 +46,7 @@ pipeline {
                     post {
                         success {
                             dir('webapp/target/') {
-                                stash includes: 'target/*.war', name: 'maven-build'
+                                stash includes: 'target/*.jar', name: 'maven-build'
                             }
                         }
                     }
@@ -67,9 +67,9 @@ pipeline {
                     unstash 'maven-build'
                 }
                 sh '''
-        cd /var/www/html/
-        java -jar *.war &
-        '''
+                cd /var/www/html/
+                java -jar *.jar &
+                '''
                 echo 'Deploying Application to Development Server Successfully!'
             }
         }
@@ -87,9 +87,9 @@ pipeline {
                     unstash 'maven-build'
                 }
                 sh '''
-        cd /var/www/html/
-        java -jar *.war &
-        '''
+                cd /var/www/html/
+                java -jar *.jar &
+                '''
                 echo 'Deploying Application to Production Server Successfully!'
             }
         }
