@@ -2,6 +2,7 @@ pipeline {
     agent none
     tools {
         maven 'maven-test'
+        git 'Default'
     }
     parameters {
         choice choices: ['prod', 'dev'], name: 'deploy'
