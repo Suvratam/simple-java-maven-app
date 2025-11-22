@@ -1,10 +1,10 @@
 pipeline {
     agent none
     tools {
-    	maven 'maven-test'
-	}
+        maven 'maven-test'
+    }
     parameters {
-     choice choices: ['prod', 'dev'], name: 'deploy'
+        choice choices: ['prod', 'dev'], name: 'deploy'
     }
     environment {
         DEPLOY_ENV = "${params.deploy}"
@@ -12,12 +12,12 @@ pipeline {
 
     stages {
         stage('Build')
-        {   
-            agent { label 'slave1'}
-            steps{
+        {
+            agent { label 'slave1' }
+            steps {
                 echo 'Building Project ...'
                 echo "Running on, ${params.deploy}!"
-                sh "mvn -B -DskipTests clean package"
+                sh 'mvn -B -DskipTests clean package'
             }
             post {
                 success {
@@ -26,20 +26,20 @@ pipeline {
             }
         }
         stage('Test')
-        {        
+        {
             parallel {
                 stage('Unit Tests') {
-                    agent { label 'slave1'}
-                    steps{
+                    agent { label 'slave1' }
+                    steps {
                         echo 'Running Unit Tests'
-                        sh "mvn test -Dtest=AppTest"
+                        sh 'mvn test -Dtest=AppTest'
                     }
                 }
                 stage('Integration Tests') {
-                    agent { label 'slave1'}
-                    steps{
+                    agent { label 'slave1' }
+                    steps {
                         echo 'Running Integration Tests'
-                        sh "mvn verify -Dtest=AppIT"
+                        sh 'mvn verify -Dtest=AppIT'
                     }
                 }
             }
@@ -51,42 +51,43 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to dev/prod')
-        {   
-            when{
-                environment ignoreCase: true, name: 'DEPLOY_ENV', value: 'dev'
-                beforeAgent true
-            }
-            agent { label 'slave1'}
-            steps{
-                echo "Deploying to Development Server..."
-                dir('/var/www/html/') {
-                unstash 'maven-build'
-                }
-                sh """
-                cd /var/www/html/
-                java -jar *.war &    
-                """
-            }
-            echo 'Deploying Application to Development Server Successfully!'
-
+        stage('Deploy to Dev') {
             when {
-                environment ignoreCase: true, name: 'DEPLOY_ENV', value: 'prod'
                 beforeAgent true
+                environment name: 'DEPLOY_ENV', value: 'dev', ignoreCase: true
             }
+            agent { label 'slave1' }
+
             steps {
-                echo "Deploy to Production Server ${DEPLOY_ENV} ..."
-                agent { label 'slave2'}
-                steps {
+                echo "Deploying to Development Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
-                unstash 'maven-build'
+                    unstash 'maven-build'
                 }
-                sh """
-                cd /var/www/html/
-                java -jar *.war &
-                """
+                sh '''
+        cd /var/www/html/
+        java -jar *.war &
+        '''
+                echo 'Deploying Application to Development Server Successfully!'
+            }
+        }
+
+        stage('Deploy to Prod') {
+            when {
+                beforeAgent true
+                environment name: 'DEPLOY_ENV', value: 'prod', ignoreCase: true
+            }
+            agent { label 'slave2' }
+
+            steps {
+                echo "Deploying to Production Server (${DEPLOY_ENV})..."
+                dir('/var/www/html/') {
+                    unstash 'maven-build'
                 }
-            echo 'Deploying Application to Production Server Successfully!'
+                sh '''
+        cd /var/www/html/
+        java -jar *.war &
+        '''
+                echo 'Deploying Application to Production Server Successfully!'
             }
         }
     }
