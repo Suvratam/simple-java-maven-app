@@ -56,17 +56,16 @@ pipeline {
         }
 
         stage('Deploy to Dev') {
-            timeout(time: 1, unit: 'DAYS') {
-                input message: 'Approve Deployment to Development Server?', ok: 'Deploy', decline: 'Cancel'
-            }
-            
             when {
                 beforeAgent true
                 environment name: 'DEPLOY_ENV', value: 'dev', ignoreCase: true
             }
             agent { label 'slave1' }
-            
+
             steps {
+                timeout(time: 1, unit: 'DAYS') {
+                    input message: 'Approve Deployment to Development Server?', ok: 'Deploy'
+                }
                 echo "Deploying to Development Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
                     unstash 'maven-build'
@@ -80,16 +79,15 @@ pipeline {
         }
 
         stage('Deploy to Prod') {
-            timeout(time: 1, unit: 'Hours') {
-                input message: 'Approve Deployment to Production Server?', ok: 'Deploy', decline: 'Cancel'
-            }
             when {
                 beforeAgent true
                 environment name: 'DEPLOY_ENV', value: 'prod', ignoreCase: true
             }
             agent { label 'slave2' }
-
             steps {
+                timeout(time: 1, unit: 'Hours') {
+                    input message: 'Approve Deployment to Production Server?', ok: 'Deploy'
+                }
                 echo "Deploying to Production Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
                     unstash 'maven-build'
