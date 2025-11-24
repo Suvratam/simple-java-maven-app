@@ -64,7 +64,7 @@ pipeline {
 
             steps {
                 timeout(time: 1, unit: 'DAYS') {
-                    input message: 'Approve Deployment to Development Server?', ok: 'Deploy'
+                    input message: 'Approve Deployment to Development Server?'
                 }
                 echo "Deploying to Development Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
@@ -86,7 +86,7 @@ pipeline {
             agent { label 'slave2' }
             steps {
                 timeout(time: 1, unit: 'Hours') {
-                    input message: 'Approve Deployment to Production Server?', ok: 'Deploy'
+                    input message: 'Approve Deployment to Production Server?'
                 }
                 echo "Deploying to Production Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
