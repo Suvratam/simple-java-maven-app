@@ -56,12 +56,16 @@ pipeline {
         }
 
         stage('Deploy to Dev') {
+            timeout(time: 1, unit: 'DAYS') {
+                input message: 'Approve Deployment to Development Server?', ok: 'Deploy', decline: 'Cancel'
+            }
+            
             when {
                 beforeAgent true
                 environment name: 'DEPLOY_ENV', value: 'dev', ignoreCase: true
             }
             agent { label 'slave1' }
-
+            
             steps {
                 echo "Deploying to Development Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
@@ -76,6 +80,9 @@ pipeline {
         }
 
         stage('Deploy to Prod') {
+            timeout(time: 1, unit: 'Hours') {
+                input message: 'Approve Deployment to Production Server?', ok: 'Deploy', decline: 'Cancel'
+            }
             when {
                 beforeAgent true
                 environment name: 'DEPLOY_ENV', value: 'prod', ignoreCase: true
