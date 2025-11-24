@@ -61,11 +61,12 @@ pipeline {
                 environment name: 'DEPLOY_ENV', value: 'dev', ignoreCase: true
             }
             agent { label 'slave1' }
-
-            steps {
+            options{
                 timeout(time: 1, unit: 'DAYS') {
                     input message: 'Approve Deployment to Development Server?'
                 }
+            }
+            steps {
                 echo "Deploying to Development Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
                     unstash 'maven-build'
@@ -84,10 +85,12 @@ pipeline {
                 environment name: 'DEPLOY_ENV', value: 'prod', ignoreCase: true
             }
             agent { label 'slave2' }
-            steps {
-                timeout(time: 1, unit: 'Hours') {
+            options{
+                timeout(time: 1, unit: 'HOURS') {
                     input message: 'Approve Deployment to Production Server?'
                 }
+            }
+            steps {
                 echo "Deploying to Production Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
                     unstash 'maven-build'
