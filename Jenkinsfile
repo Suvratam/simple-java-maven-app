@@ -61,12 +61,15 @@ pipeline {
                 environment name: 'DEPLOY_ENV', value: 'dev', ignoreCase: true
             }
             agent { label 'slave1' }
-            options{
+            options {
+            }
+        }
+            steps {
                 timeout(time: 1, unit: 'DAYS') {
+                script {
                     input message: 'Approve Deployment to Development Server?'
                 }
-            }
-            steps {
+                }
                 echo "Deploying to Development Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
                     unstash 'maven-build'
@@ -77,7 +80,7 @@ pipeline {
                 '''
                 echo 'Deploying Application to Development Server Successfully!'
             }
-        }
+    }
 
         stage('Deploy to Prod') {
             when {
@@ -85,12 +88,11 @@ pipeline {
                 environment name: 'DEPLOY_ENV', value: 'prod', ignoreCase: true
             }
             agent { label 'slave2' }
-            options{
-                timeout(time: 1, unit: 'HOURS') {
-                    input message: 'Approve Deployment to Production Server?'
-                }
-            }
             steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    script {
+                        input message: 'Approve Deployment to Production Server?'
+                    }
                 echo "Deploying to Production Server (${DEPLOY_ENV})..."
                 dir('/var/www/html/') {
                     unstash 'maven-build'
@@ -100,7 +102,7 @@ pipeline {
                 java -jar *.jar &
                 '''
                 echo 'Deploying Application to Production Server Successfully!'
+                }
             }
         }
-    }
 }
